@@ -8,7 +8,6 @@ import (
 )
 
 func CreateProductController(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method == http.MethodPost {
 
 		name := r.FormValue("name")
@@ -16,16 +15,21 @@ func CreateProductController(w http.ResponseWriter, r *http.Request) {
 		price := r.FormValue("price")
 		quantity := r.FormValue("quantity")
 
-		convertPriceInFloat, err := strconv.ParseFloat(price, 64)
+		priceConvertInFloat, err := strconv.ParseFloat(price, 64)
 		if err != nil {
-			logger.Errorf("can't convert price in float. Here the reason: %s", err)
-		}
-		convertQuantityInInt, err := strconv.Atoi(quantity)
-		if err != nil {
-			logger.Errorf("can't convert quantity in int. Here the reason: %s", err)
+			logger.Errorf("can't convertrion value to float. Here the reazon: %s", err)
 		}
 
-		services.CrateProductService(name, description, convertPriceInFloat, convertQuantityInInt)
+		quantityConvertToInt, err := strconv.Atoi(quantity)
+		if err != nil {
+			logger.Errorf("can't convertrion value to int. Here the reazon: %s", err)
+		}
+
+		if (name == "") || (description == "") || (price == "") || (quantity == "") {
+			logger.Errorf("can't create producut. Here the reazon: %s", err)
+		} else {
+			services.CrateProductService(name, description, priceConvertInFloat, quantityConvertToInt)
+		}
 	}
-
+	http.Redirect(w, r, "/", 301)
 }

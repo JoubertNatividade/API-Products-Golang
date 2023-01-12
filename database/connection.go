@@ -30,6 +30,12 @@ func prepareStatement(sqlCommand string) *sql.Stmt {
 
 	return stmt
 }
+func ListAll() *sql.Rows {
+
+	all, _ := db.Query("select * from products")
+
+	return all
+}
 
 func Insert(
 	name,
@@ -37,7 +43,7 @@ func Insert(
 	price float64,
 	quantity int,
 ) {
-	stmt := prepareStatement("insert into products (name, descritpion, price, quantity) values ($1,$2,$3, $4)")
+	stmt := prepareStatement("insert into products (name, description, price, quantity) values($1, $2, $3, $4)")
 
 	exec, err := stmt.Exec(name, description, price, quantity)
 
@@ -50,9 +56,8 @@ func Insert(
 	exec.RowsAffected()
 }
 
-func ListAll() *sql.Rows {
+func Delete(id string) {
+	stmt := prepareStatement("delete from products where id=$1")
 
-	all, _ := db.Query("select * from products")
-
-	return all
+	stmt.Exec(id)
 }
