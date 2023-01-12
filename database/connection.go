@@ -21,3 +21,31 @@ func ConnectionDB() *sql.DB {
 	}
 	return db
 }
+
+func prepareStatement(sqlCommand string) *sql.Stmt {
+	stmt, err := db.Prepare(sqlCommand)
+	if err != nil {
+		logger.Errorf("can't prepare statement. Here the reason: %s", err)
+	}
+
+	return stmt
+}
+
+func Insert(
+	name,
+	description string,
+	price float64,
+	quantity int,
+) {
+	stmt := prepareStatement("insert into products (name, descritpion, price, quantity) values ($1,$2,$3, $4)")
+
+	exec, err := stmt.Exec(name, description, price, quantity)
+
+	if err != nil {
+		logger.Error("can't insert product")
+	} else {
+		logger.Info("product insert success")
+	}
+
+	exec.RowsAffected()
+}
