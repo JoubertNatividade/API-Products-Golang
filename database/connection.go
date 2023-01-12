@@ -49,3 +49,10 @@ func Insert(
 
 	exec.RowsAffected()
 }
+
+func ListAll() *sql.Rows {
+
+	all, _ := db.Query("select * from products")
+
+	return all
+}
