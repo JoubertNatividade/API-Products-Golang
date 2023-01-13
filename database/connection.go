@@ -1,6 +1,7 @@
 package database
 
 import (
+	"apigolang/models"
 	"database/sql"
 	_ "github.com/lib/pq"
 	logger "github.com/sirupsen/logrus"
@@ -32,7 +33,7 @@ func prepareStatement(sqlCommand string) *sql.Stmt {
 }
 func ListAll() *sql.Rows {
 
-	all, _ := db.Query("select * from products")
+	all, _ := db.Query("select * from products order by id asc")
 
 	return all
 }
@@ -54,6 +55,45 @@ func Insert(
 	}
 
 	exec.RowsAffected()
+}
+
+func Edit(id string) models.Product {
+	response, err := db.Query("select * from products where id=$1", id)
+	if err != nil {
+		logger.Errorf("can't select produtc. Here the reason: %s", err)
+	}
+
+	prod := models.Product{}
+
+	for response.Next() {
+		var id, quantity int
+		var name, description string
+		var price float64
+
+		err := response.Scan(&id, &name, &description, &price, &quantity)
+		if err != nil {
+			logger.Errorf("can't finc item in db. Here the reason: %s", err)
+		}
+
+		prod.ID = id
+		prod.Name = name
+		prod.Description = description
+		prod.Price = price
+		prod.Quantity = quantity
+	}
+	return prod
+}
+
+func Update(
+	id int,
+	name,
+	description string,
+	price float64,
+	quantity int,
+) {
+	stmt := prepareStatement("update products set name=$1, description=$2, price=$3, quantity=$4 where id=$5")
+	stmt.Exec(name, description, price, quantity, id)
+
 }
 
 func Delete(id string) {
